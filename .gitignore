@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.npm-cache/
+*.zip
+*.log
+SP4RK-Stencil-Studio-OPEN-ME.html
