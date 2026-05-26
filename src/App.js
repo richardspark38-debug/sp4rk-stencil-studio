@@ -30,6 +30,10 @@ const ORDER_PACKAGES = [
 ];
 
 const EMPTY_PAYMENT_LINKS = ORDER_PACKAGES.reduce((links, item) => ({ ...links, [item.id]: "" }), {});
+const DEFAULT_PAYMENT_LINKS = {
+  ...EMPTY_PAYMENT_LINKS,
+  digital: "https://buy.stripe.com/test_7sY6oGb8sgcl4D92Nz38400",
+};
 const PAYMENT_LINK_STORAGE_KEY = "sp4rk-stencil-payment-links";
 
 const DEFAULT_BRIDGE = {
@@ -78,11 +82,11 @@ function App() {
   const [outputPages, setOutputPages] = useState([]);
   const [outputMode, setOutputMode] = useState("");
   const [sheetView, setSheetView] = useState(false);
-  const [orderPackage, setOrderPackage] = useState("tile");
+  const [orderPackage, setOrderPackage] = useState("digital");
   const [customerEmail, setCustomerEmail] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [orderMessage, setOrderMessage] = useState("");
-  const [paymentLinks, setPaymentLinks] = useState(EMPTY_PAYMENT_LINKS);
+  const [paymentLinks, setPaymentLinks] = useState(DEFAULT_PAYMENT_LINKS);
   const [view, setView] = useState("landing");
 
   const pageLayout = PAGE_LAYOUTS[pageCount];
@@ -276,9 +280,9 @@ function App() {
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(PAYMENT_LINK_STORAGE_KEY) || "{}");
-      setPaymentLinks({ ...EMPTY_PAYMENT_LINKS, ...saved });
+      setPaymentLinks({ ...DEFAULT_PAYMENT_LINKS, ...saved });
     } catch {
-      setPaymentLinks(EMPTY_PAYMENT_LINKS);
+      setPaymentLinks(DEFAULT_PAYMENT_LINKS);
     }
   }, []);
 
@@ -706,28 +710,26 @@ function App() {
   };
 
   const prepareOrder = () => {
-    if (!imageReady) {
-      setOrderMessage("Upload a stencil image before starting checkout.");
+    const activePaymentLink = paymentLinks[orderPackage]?.trim();
+
+    if (!activePaymentLink) {
+      setOrderMessage(`Payment link missing for ${selectedPackage.name}. Paste the Stripe link for this package first.`);
       return;
     }
 
-    const activePaymentLink = paymentLinks[orderPackage]?.trim();
     const summary = [
       `SP4RK order ready: ${selectedPackage.name}`,
       `Price: $${selectedPackage.price}`,
       `Customer: ${customerEmail || "add customer email"}`,
-      `Pages: ${pageCount} page layout, ${PAGE_SIZES[pageSize].label}`,
+      imageReady ? `Pages: ${pageCount} page layout, ${PAGE_SIZES[pageSize].label}` : "Stencil image: customer will send/upload after payment",
       `Bridges: ${bridges.length}`,
       `Layers selected: ${enabledLayerCount}`,
       `Notes: ${orderNotes || "none"}`,
-      activePaymentLink ? `Payment link: ${activePaymentLink}` : "Payment link missing for this package.",
+      `Opening payment link: ${activePaymentLink}`,
     ].join("\n");
 
     setOrderMessage(summary);
-
-    if (activePaymentLink) {
-      window.location.href = activePaymentLink;
-    }
+    window.location.href = activePaymentLink;
   };
 
   const savePaymentLink = (packageId, value) => {
