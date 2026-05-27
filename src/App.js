@@ -53,6 +53,8 @@ const DEFAULT_PAYMENT_LINKS = {
   digital: "https://buy.stripe.com/test_14A8wRcsu3S2dO8djQ5AQ00",
 };
 const PAYMENT_LINK_STORAGE_KEY = "sp4rk-stencil-payment-links";
+const CONTACT_EMAIL = "sparksdarkdesigns@gmail.com";
+const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}?subject=SP4RK%20Stencil%20Order`;
 
 const DEFAULT_BRIDGE = {
   width: 82,
@@ -1237,6 +1239,7 @@ function LandingPage({ onOpenStudio }) {
           <a href="#work">Work</a>
           <a href="#pricing">Pricing</a>
           <a href="#process">Process</a>
+          <a href="#contact">Contact</a>
           <button type="button" onClick={onOpenStudio}>
             Launch Studio
           </button>
@@ -1298,6 +1301,39 @@ function LandingPage({ onOpenStudio }) {
         <span>Airbrush mask planning</span>
       </section>
 
+      <section className="site-section instructions-section" id="order-steps">
+        <div>
+          <p className="eyebrow">Order Instructions</p>
+          <h2>Four steps from photo to stencil file.</h2>
+          <p>
+            The studio lets you test the look first. Your order notes tell SP4RK what size, material, and cutting method
+            the final file needs to work for.
+          </p>
+        </div>
+        <div className="instruction-grid">
+          <article>
+            <span>01</span>
+            <h3>Upload</h3>
+            <p>Open the studio and upload a JPG, PNG, or WebP source image.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Preview</h3>
+            <p>Adjust threshold, invert, brightness, contrast, bridge tabs, and page layout.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Pay</h3>
+            <p>Choose your package, pay through Stripe, then include your order notes.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Receive</h3>
+            <p>SP4RK reviews the artwork and sends the cleaned file or print pack by email.</p>
+          </article>
+        </div>
+      </section>
+
       <section className="site-section customer-section">
         <div>
           <p className="eyebrow">Built For Real Jobs</p>
@@ -1319,6 +1355,30 @@ function LandingPage({ onOpenStudio }) {
           <article>
             <h3>Wrap / Sticker Work</h3>
             <p>Stencil-style artwork cleanup for custom decals, masks, and bold graphic layouts.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="site-section gallery-section" aria-label="Sample stencil gallery">
+        <div className="section-title">
+          <p className="eyebrow">Sample Output</p>
+          <h2>Dark stencil looks customers can understand fast.</h2>
+        </div>
+        <div className="sample-grid">
+          <article className="sample-card">
+            <div className="sample-art sample-face" aria-hidden="true" />
+            <h3>Portrait Cutout</h3>
+            <p>Bold face shapes, hard shadows, and bridge planning for hand cutting.</p>
+          </article>
+          <article className="sample-card">
+            <div className="sample-art sample-tile" aria-hidden="true" />
+            <h3>Tiled Print Pack</h3>
+            <p>Large stencil split into labeled pages with alignment marks.</p>
+          </article>
+          <article className="sample-card">
+            <div className="sample-art sample-layer" aria-hidden="true" />
+            <h3>Layer Planning</h3>
+            <p>Separate passes for shadows, highlights, and painted details.</p>
           </article>
         </div>
       </section>
@@ -1416,7 +1476,7 @@ function LandingPage({ onOpenStudio }) {
 
       <section className="site-section policy-section" id="order">
         <div>
-          <p className="eyebrow">Custom Work Policy</p>
+          <p className="eyebrow">Before You Order</p>
           <h2>Image quality matters.</h2>
           <p>
             Clean, high-contrast photos make the best stencils. Some designs may need manual cleanup, extra bridge tabs,
@@ -1424,7 +1484,7 @@ function LandingPage({ onOpenStudio }) {
           </p>
         </div>
         <div>
-          <p className="eyebrow">Refunds</p>
+          <p className="eyebrow">Custom Work Policy</p>
           <h2>Digital work starts after review.</h2>
           <p>
             If a source image cannot be turned into a usable stencil, the order can be cancelled before custom cleanup
@@ -1451,6 +1511,28 @@ function LandingPage({ onOpenStudio }) {
             <h3>Tell us</h3>
             <p>Include final size, cutting method, paint method, material, and deadline in the order notes.</p>
           </article>
+        </div>
+      </section>
+
+      <section className="site-section contact-section" id="contact">
+        <div>
+          <p className="eyebrow">Contact</p>
+          <h2>Send the image, size, material, and deadline.</h2>
+          <p>
+            Use email for custom questions, source images, order notes, wrap/sticker ideas, and anything that needs a
+            quick review before payment.
+          </p>
+        </div>
+        <div className="contact-card">
+          <span>SP4RK / Sparks Dark Designs</span>
+          <a href={CONTACT_MAILTO}>{CONTACT_EMAIL}</a>
+          <p>Include the final stencil size, cutting method, material, and when you need it.</p>
+          <div className="contact-actions">
+            <a href={CONTACT_MAILTO}>Email SP4RK</a>
+            <button type="button" onClick={onOpenStudio}>
+              Build Preview
+            </button>
+          </div>
         </div>
       </section>
 

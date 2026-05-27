@@ -688,7 +688,9 @@ canvas {
 .order-band button,
 .price-card a,
 .price-card button,
-.order-actions a {
+.order-actions a,
+.contact-actions a,
+.contact-actions button {
   display: inline-grid;
   place-items: center;
   min-height: 44px;
@@ -915,10 +917,20 @@ canvas {
 .service-grid,
 .faq-grid,
 .customer-grid,
-.deliverables-grid {
+.deliverables-grid,
+.instruction-grid,
+.sample-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+}
+
+.instructions-section,
+.contact-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(520px, 1fr);
+  gap: 30px;
+  align-items: start;
 }
 
 .customer-section {
@@ -928,10 +940,21 @@ canvas {
   align-items: start;
 }
 
+.instructions-section h2,
 .customer-section h2 {
   margin: 0;
   font-size: 34px;
   text-transform: uppercase;
+}
+
+.instructions-section > div > p,
+.contact-section > div > p {
+  color: #d4cec8;
+  line-height: 1.55;
+}
+
+.instruction-grid {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .customer-grid {
@@ -946,11 +969,26 @@ canvas {
 .service-tile,
 .faq-grid article,
 .customer-grid article,
-.deliverables-grid div {
+.deliverables-grid div,
+.instruction-grid article,
+.sample-card,
+.contact-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(21, 21, 21, 0.86);
   padding: 20px;
+}
+
+.instruction-grid article {
+  min-height: 190px;
+}
+
+.instruction-grid span,
+.contact-card span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .service-tile {
@@ -978,10 +1016,13 @@ canvas {
 
 .price-card p,
 .policy-section p,
+.instruction-grid p,
 .service-tile p,
 .faq-grid p,
 .customer-grid p,
 .deliverables-grid p,
+.sample-card p,
+.contact-card p,
 .order-band p {
   color: #d4cec8;
   line-height: 1.55;
@@ -1028,10 +1069,75 @@ canvas {
 
 .service-tile h3,
 .faq-grid h3,
-.customer-grid h3 {
+.customer-grid h3,
+.instruction-grid h3,
+.sample-card h3 {
   margin: 18px 0 10px;
   font-size: 22px;
   text-transform: uppercase;
+}
+
+.sample-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.sample-card {
+  display: grid;
+  gap: 14px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.sample-card h3,
+.sample-card p {
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.sample-card p {
+  margin-bottom: 20px;
+}
+
+.sample-art {
+  min-height: 260px;
+  border-bottom: 1px solid rgba(255, 109, 42, 0.22);
+  background-color: #f5f1eb;
+  background-repeat: no-repeat;
+}
+
+.sample-face {
+  background:
+    radial-gradient(circle at 43% 38%, transparent 0 13px, #070707 14px 24px, transparent 25px),
+    radial-gradient(circle at 61% 39%, transparent 0 11px, #070707 12px 22px, transparent 23px),
+    radial-gradient(circle at 52% 28%, #070707 0 70px, transparent 71px),
+    linear-gradient(98deg, transparent 0 27%, #070707 28% 42%, transparent 43% 100%),
+    linear-gradient(78deg, transparent 0 58%, #070707 59% 75%, transparent 76% 100%),
+    linear-gradient(#f5f1eb, #f5f1eb);
+  background-size: 100% 100%;
+}
+
+.sample-tile {
+  background:
+    linear-gradient(90deg, transparent 49%, rgba(230, 50, 35, 0.7) 49% 51%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, rgba(230, 50, 35, 0.7) 49% 51%, transparent 51%),
+    radial-gradient(circle at 22% 22%, transparent 0 7px, #070707 8px 10px, transparent 11px),
+    radial-gradient(circle at 78% 22%, transparent 0 7px, #070707 8px 10px, transparent 11px),
+    radial-gradient(circle at 22% 78%, transparent 0 7px, #070707 8px 10px, transparent 11px),
+    radial-gradient(circle at 78% 78%, transparent 0 7px, #070707 8px 10px, transparent 11px),
+    linear-gradient(110deg, transparent 0 18%, #070707 19% 34%, transparent 35% 100%),
+    linear-gradient(70deg, transparent 0 58%, #070707 59% 72%, transparent 73% 100%),
+    radial-gradient(circle at 50% 45%, #070707 0 68px, transparent 69px),
+    linear-gradient(#f5f1eb, #f5f1eb);
+}
+
+.sample-layer {
+  background:
+    linear-gradient(90deg, transparent 0 34%, rgba(230, 50, 35, 0.88) 35% 42%, transparent 43% 100%),
+    linear-gradient(90deg, transparent 0 58%, rgba(255, 109, 42, 0.72) 59% 66%, transparent 67% 100%),
+    radial-gradient(circle at 35% 38%, #070707 0 58px, transparent 59px),
+    radial-gradient(circle at 64% 48%, #070707 0 72px, transparent 73px),
+    repeating-linear-gradient(0deg, transparent 0 20px, #070707 21px 30px, transparent 31px 48px),
+    linear-gradient(#f5f1eb, #f5f1eb);
 }
 
 .deliverables-grid {
@@ -1072,6 +1178,37 @@ canvas {
   grid-template-columns: minmax(0, 0.7fr) minmax(420px, 1fr);
   gap: 28px;
   align-items: start;
+}
+
+.contact-section h2 {
+  margin: 0;
+  font-size: 34px;
+  text-transform: uppercase;
+}
+
+.contact-card {
+  display: grid;
+  gap: 16px;
+}
+
+.contact-card > a {
+  color: var(--text);
+  font-size: clamp(24px, 3vw, 38px);
+  font-weight: 950;
+  line-height: 1.05;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.contact-actions button {
+  background: rgba(255, 109, 42, 0.1);
+  color: var(--accent);
 }
 
 .order-band {
@@ -1203,7 +1340,9 @@ canvas {
 
   .hero-section,
   .split-section,
+  .instructions-section,
   .customer-section,
+  .contact-section,
   .faq-section,
   .order-band {
     grid-template-columns: 1fr;
@@ -1221,6 +1360,8 @@ canvas {
   .faq-grid,
   .customer-grid,
   .deliverables-grid,
+  .instruction-grid,
+  .sample-grid,
   .policy-section {
     grid-template-columns: 1fr;
   }
@@ -1235,7 +1376,9 @@ canvas {
   }
 
   .order-actions button,
-  .order-actions a {
+  .order-actions a,
+  .contact-actions a,
+  .contact-actions button {
     width: 100%;
   }
 }
