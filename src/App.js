@@ -24,9 +24,27 @@ const LAYER_PRESETS = [
 ];
 
 const ORDER_PACKAGES = [
-  { id: "digital", name: "Digital Stencil File", price: 12, detail: "Clean PNG page set for cutting or printing" },
-  { id: "tile", name: "Tiled Print Pack", price: 24, detail: "Large stencil split across printable pages" },
-  { id: "custom", name: "Custom Cut-Ready Job", price: 45, detail: "Manual cleanup for vinyl, Cricut, or wrap work" },
+  {
+    id: "digital",
+    name: "Digital Stencil File",
+    price: 12,
+    detail: "Clean PNG stencil preview for cutting or printing",
+    bullets: ["Black and white cutout file", "Bridge tab notes", "Email delivery after review"],
+  },
+  {
+    id: "tile",
+    name: "Tiled Print Pack",
+    price: 24,
+    detail: "Large stencil split across printable pages",
+    bullets: ["4, 6, or 9 page layouts", "Page labels for assembly", "Good for oversized wall or garage work"],
+  },
+  {
+    id: "custom",
+    name: "Custom Cut-Ready Job",
+    price: 45,
+    detail: "Manual cleanup for vinyl, Cricut, or wrap work",
+    bullets: ["Cleaner edges and simplified detail", "Cut method notes", "Best for customer jobs and machines"],
+  },
 ];
 
 const EMPTY_PAYMENT_LINKS = ORDER_PACKAGES.reduce((links, item) => ({ ...links, [item.id]: "" }), {});
@@ -1237,7 +1255,7 @@ function LandingPage({ onOpenStudio }) {
             <button type="button" onClick={onOpenStudio}>
               Build A Preview
             </button>
-            <a href={DEFAULT_PAYMENT_LINKS.digital}>Order $12 Test File</a>
+            <a href={DEFAULT_PAYMENT_LINKS.digital}>Order Digital File</a>
           </div>
           <div className="hero-stats" aria-label="SP4RK service highlights">
             <span>Black / white cut files</span>
@@ -1280,6 +1298,31 @@ function LandingPage({ onOpenStudio }) {
         <span>Airbrush mask planning</span>
       </section>
 
+      <section className="site-section customer-section">
+        <div>
+          <p className="eyebrow">Built For Real Jobs</p>
+          <h2>From one-off garage cuts to customer wrap and sticker prep.</h2>
+        </div>
+        <div className="customer-grid">
+          <article>
+            <h3>Hand Cutting</h3>
+            <p>Printable black areas, keep areas, and bridge tabs for knife-cut stencil work.</p>
+          </article>
+          <article>
+            <h3>Cricut / Vinyl</h3>
+            <p>Cleaner shape direction for machine-cut jobs that need fewer fragile details.</p>
+          </article>
+          <article>
+            <h3>Airbrush</h3>
+            <p>Layer planning for shadows, highlights, eyes, mouth, and extra paint passes.</p>
+          </article>
+          <article>
+            <h3>Wrap / Sticker Work</h3>
+            <p>Stencil-style artwork cleanup for custom decals, masks, and bold graphic layouts.</p>
+          </article>
+        </div>
+      </section>
+
       <section className="site-section work-section" id="work">
         <div className="section-title">
           <p className="eyebrow">What You Get</p>
@@ -1320,6 +1363,11 @@ function LandingPage({ onOpenStudio }) {
               <span>{item.name}</span>
               <strong>${item.price}</strong>
               <p>{item.detail}</p>
+              <ul>
+                {item.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
               {item.id === "digital" ? (
                 <a href={DEFAULT_PAYMENT_LINKS.digital}>Order Digital File</a>
               ) : (
@@ -1343,6 +1391,27 @@ function LandingPage({ onOpenStudio }) {
           <li><strong>Order</strong> the package that matches your job and add notes for size, material, and deadline.</li>
           <li><strong>Receive</strong> printable files or cut-ready cleanup by email after review.</li>
         </ol>
+      </section>
+
+      <section className="site-section deliverables-section">
+        <div className="section-title">
+          <p className="eyebrow">Deliverables</p>
+          <h2>Clear files, clear expectations.</h2>
+        </div>
+        <div className="deliverables-grid">
+          <div>
+            <strong>Included</strong>
+            <p>Stencil preview, cut/keep legend, package notes, and printable output based on the package selected.</p>
+          </div>
+          <div>
+            <strong>Best Results</strong>
+            <p>Use a sharp photo with strong lighting, visible subject edges, and not too much background clutter.</p>
+          </div>
+          <div>
+            <strong>Next Up</strong>
+            <p>SVG, PDF, true inch sizing, and advanced layer packs are planned as the studio grows.</p>
+          </div>
+        </div>
       </section>
 
       <section className="site-section policy-section" id="order">

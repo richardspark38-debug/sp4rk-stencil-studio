@@ -913,10 +913,29 @@ canvas {
 .pricing-grid,
 .policy-section,
 .service-grid,
-.faq-grid {
+.faq-grid,
+.customer-grid,
+.deliverables-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+}
+
+.customer-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(520px, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+
+.customer-section h2 {
+  margin: 0;
+  font-size: 34px;
+  text-transform: uppercase;
+}
+
+.customer-grid {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .service-grid {
@@ -925,7 +944,9 @@ canvas {
 
 .price-card,
 .service-tile,
-.faq-grid article {
+.faq-grid article,
+.customer-grid article,
+.deliverables-grid div {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(21, 21, 21, 0.86);
@@ -959,9 +980,39 @@ canvas {
 .policy-section p,
 .service-tile p,
 .faq-grid p,
+.customer-grid p,
+.deliverables-grid p,
 .order-band p {
   color: #d4cec8;
   line-height: 1.55;
+}
+
+.price-card ul {
+  display: grid;
+  gap: 8px;
+  min-height: 98px;
+  margin: 16px 0 0;
+  padding: 0;
+  color: #d4cec8;
+  font-size: 14px;
+  line-height: 1.35;
+  list-style: none;
+}
+
+.price-card li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.price-card li::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  transform: rotate(45deg);
 }
 
 .price-card a,
@@ -976,9 +1027,21 @@ canvas {
 }
 
 .service-tile h3,
-.faq-grid h3 {
+.faq-grid h3,
+.customer-grid h3 {
   margin: 18px 0 10px;
   font-size: 22px;
+  text-transform: uppercase;
+}
+
+.deliverables-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.deliverables-grid strong {
+  display: block;
+  color: var(--accent);
+  font-size: 14px;
   text-transform: uppercase;
 }
 
@@ -1140,6 +1203,7 @@ canvas {
 
   .hero-section,
   .split-section,
+  .customer-section,
   .faq-section,
   .order-band {
     grid-template-columns: 1fr;
@@ -1155,6 +1219,8 @@ canvas {
   .pricing-grid,
   .service-grid,
   .faq-grid,
+  .customer-grid,
+  .deliverables-grid,
   .policy-section {
     grid-template-columns: 1fr;
   }
