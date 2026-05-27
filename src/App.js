@@ -1216,6 +1216,7 @@ function LandingPage({ onOpenStudio }) {
           </div>
         </div>
         <div className="nav-actions">
+          <a href="#work">Work</a>
           <a href="#pricing">Pricing</a>
           <a href="#process">Process</a>
           <button type="button" onClick={onOpenStudio}>
@@ -1226,22 +1227,31 @@ function LandingPage({ onOpenStudio }) {
 
       <section className="hero-section">
         <div className="hero-copy">
-          <p className="eyebrow">Custom stencil files for cutters, paint, wraps, and airbrush work</p>
-          <h2>Turn customer photos into dark, printable cutout stencil designs.</h2>
+          <p className="eyebrow">Printable stencil files for cutters, paint, wraps, and airbrush work</p>
+          <h2>Custom stencil artwork built from your photo.</h2>
           <p>
-            SP4RK Stencil Studio creates black-and-white stencil previews, tiled print sheets, bridge tab guides, and
-            custom cut-ready artwork for hand cutting, vinyl, Cricut, airbrushing, sticker work, and wrap layouts.
+            Upload your image, preview the black-and-white cutout, then order a cleaned file for hand cutting, vinyl,
+            Cricut, airbrushing, sticker work, or wrap layouts.
           </p>
           <div className="hero-actions">
             <button type="button" onClick={onOpenStudio}>
-              Start a Stencil
+              Build A Preview
             </button>
-            <a href="#order">View Order Options</a>
+            <a href={DEFAULT_PAYMENT_LINKS.digital}>Order $12 Test File</a>
+          </div>
+          <div className="hero-stats" aria-label="SP4RK service highlights">
+            <span>Black / white cut files</span>
+            <span>Bridge tab planning</span>
+            <span>Tiled print pages</span>
           </div>
         </div>
 
         <div className="hero-preview" aria-label="Stencil artwork preview">
           <div className="preview-paper">
+            <div className="paper-label">
+              <span>SP4RK Stencil Studio</span>
+              <strong>Cut Preview</strong>
+            </div>
             <div className="skull-row">
               <span />
               <span />
@@ -1254,8 +1264,48 @@ function LandingPage({ onOpenStudio }) {
               <i />
               <i />
             </div>
-            <strong>BLACK = CUT OUT</strong>
+            <div className="cut-legend">
+              <b>BLACK = CUT</b>
+              <b>WHITE = KEEP</b>
+              <b>RED = BRIDGE</b>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <section className="proof-strip" aria-label="SP4RK capabilities">
+        <span>Photo to stencil</span>
+        <span>Printable page packs</span>
+        <span>Cricut / vinyl prep</span>
+        <span>Airbrush mask planning</span>
+      </section>
+
+      <section className="site-section work-section" id="work">
+        <div className="section-title">
+          <p className="eyebrow">What You Get</p>
+          <h2>Cleaner stencil files without guessing.</h2>
+        </div>
+        <div className="service-grid">
+          <article className="service-tile">
+            <span>01</span>
+            <h3>Cutout Preview</h3>
+            <p>See the black cut areas before you order, then tune threshold, brightness, and contrast.</p>
+          </article>
+          <article className="service-tile">
+            <span>02</span>
+            <h3>Bridge Tabs</h3>
+            <p>Add do-not-cut bridge tabs so inner islands and small details have a better chance of holding.</p>
+          </article>
+          <article className="service-tile">
+            <span>03</span>
+            <h3>Print Pages</h3>
+            <p>Split oversized artwork into 4, 6, or 9 printable pages for large stencils and garage work.</p>
+          </article>
+          <article className="service-tile">
+            <span>04</span>
+            <h3>Custom Cleanup</h3>
+            <p>Send notes for vinyl, Cricut, airbrush, sticker, wrap, or hand-cut output.</p>
+          </article>
         </div>
       </section>
 
@@ -1270,6 +1320,13 @@ function LandingPage({ onOpenStudio }) {
               <span>{item.name}</span>
               <strong>${item.price}</strong>
               <p>{item.detail}</p>
+              {item.id === "digital" ? (
+                <a href={DEFAULT_PAYMENT_LINKS.digital}>Order Digital File</a>
+              ) : (
+                <button type="button" onClick={onOpenStudio}>
+                  Build Preview
+                </button>
+              )}
             </article>
           ))}
         </div>
@@ -1281,14 +1338,14 @@ function LandingPage({ onOpenStudio }) {
           <h2>Upload, preview, order, then receive the cleaned stencil file.</h2>
         </div>
         <ol className="process-list">
-          <li>Upload your source photo or artwork in the studio.</li>
-          <li>Adjust threshold, contrast, brightness, page layout, and bridge tabs.</li>
-          <li>Choose a package and submit notes for cut size, material, and deadline.</li>
-          <li>SP4RK reviews the order and sends printable files or cut-ready cleanup by email.</li>
+          <li><strong>Upload</strong> your source photo or artwork in the studio.</li>
+          <li><strong>Preview</strong> threshold, contrast, brightness, page layout, and bridge tabs.</li>
+          <li><strong>Order</strong> the package that matches your job and add notes for size, material, and deadline.</li>
+          <li><strong>Receive</strong> printable files or cut-ready cleanup by email after review.</li>
         </ol>
       </section>
 
-      <section className="site-section policy-section">
+      <section className="site-section policy-section" id="order">
         <div>
           <p className="eyebrow">Custom Work Policy</p>
           <h2>Image quality matters.</h2>
@@ -1307,19 +1364,44 @@ function LandingPage({ onOpenStudio }) {
         </div>
       </section>
 
-      <section className="site-section order-band" id="order">
+      <section className="site-section faq-section">
+        <div>
+          <p className="eyebrow">Good Source Images</p>
+          <h2>Send the cleanest photo you have.</h2>
+        </div>
+        <div className="faq-grid">
+          <article>
+            <h3>Best files</h3>
+            <p>Sharp JPG, PNG, or WebP images with clear subject edges and strong lighting.</p>
+          </article>
+          <article>
+            <h3>Harder jobs</h3>
+            <p>Blurry faces, tiny details, busy backgrounds, and low contrast images may need custom cleanup.</p>
+          </article>
+          <article>
+            <h3>Tell us</h3>
+            <p>Include final size, cutting method, paint method, material, and deadline in the order notes.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="site-section order-band">
         <div>
           <p className="eyebrow">Ready To Build</p>
-          <h2>Open the studio and prepare your stencil order.</h2>
+          <h2>Preview the stencil, then send it through checkout.</h2>
+          <p>Start in the studio, tune the look, choose your package, and pay with the Stripe link.</p>
         </div>
-        <button type="button" onClick={onOpenStudio}>
-          Launch SP4RK Stencil Studio
-        </button>
+        <div className="order-actions">
+          <button type="button" onClick={onOpenStudio}>
+            Launch Studio
+          </button>
+          <a href={DEFAULT_PAYMENT_LINKS.digital}>Order Digital File</a>
+        </div>
       </section>
 
       <footer className="site-footer">
         <strong>SP4RK / Sparks Dark Designs</strong>
-        <span>Custom stencil previews, printable page packs, and cut-ready cleanup.</span>
+        <span>Printable stencil previews, page packs, bridge tabs, and cut-ready cleanup.</span>
       </footer>
     </main>
   );
