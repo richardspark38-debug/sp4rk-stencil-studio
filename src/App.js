@@ -32,7 +32,7 @@ const ORDER_PACKAGES = [
 const EMPTY_PAYMENT_LINKS = ORDER_PACKAGES.reduce((links, item) => ({ ...links, [item.id]: "" }), {});
 const DEFAULT_PAYMENT_LINKS = {
   ...EMPTY_PAYMENT_LINKS,
-  digital: "https://buy.stripe.com/test_7sY6oGb8sgcl4D92Nz38400",
+  digital: "https://buy.stripe.com/test_14A8wRcsu3S2dO8djQ5AQ00",
 };
 const PAYMENT_LINK_STORAGE_KEY = "sp4rk-stencil-payment-links";
 
