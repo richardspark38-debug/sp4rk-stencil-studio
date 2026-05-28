@@ -1292,6 +1292,20 @@ canvas {
   font-size: 28px;
 }
 
+.sheet-toolbar span {
+  display: block;
+  margin-top: 6px;
+  color: #444444;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sheet-toolbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .sheet-toolbar button {
   min-height: 42px;
   border-color: #111111;
@@ -1300,6 +1314,12 @@ canvas {
   padding: 0 18px;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.sheet-toolbar-actions button:first-child {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #111111;
 }
 
 .sheet-pages {

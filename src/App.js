@@ -686,12 +686,23 @@ function App() {
     setPreparedOutput("Export Pages", pages);
   };
 
-  const preparePrint = (pages, mode) => {
+  const printPreparedSheet = () => {
+    window.setTimeout(() => {
+      window.print();
+    }, 450);
+  };
+
+  const preparePrint = (pages, mode, shouldPrint = false) => {
     if (!pages.length) {
       return;
     }
 
     setPreparedOutput(mode, pages);
+    setSheetView(true);
+
+    if (shouldPrint) {
+      printPreparedSheet();
+    }
   };
 
   const printCurrentPreview = () => {
@@ -712,9 +723,9 @@ function App() {
           ),
         },
       ],
-      "Print Preview"
+      "Print Preview",
+      true
     );
-    setSheetView(true);
   };
 
   const printTiledPages = () => {
@@ -726,8 +737,7 @@ function App() {
       objectUrl: page.objectUrl,
     }));
 
-    preparePrint(pages, "Print Pages");
-    setSheetView(true);
+    preparePrint(pages, "Print Pages", true);
   };
 
   const clearOutput = () => {
@@ -1099,14 +1109,15 @@ function App() {
             </div>
             <div className="print-save-grid">
               <button type="button" onClick={printTiledPages} disabled={!imageReady}>
-                Prepare Tiled Sheet
+                Print Tiled Sheet
               </button>
               <button type="button" onClick={printCurrentPreview} disabled={!imageReady}>
-                Prepare Full Sheet
+                Print Full Sheet
               </button>
             </div>
             <p className="micro-copy">
-              After preparing, use Sheet View. Print with Ctrl+P or right-click the sheet image to save it.
+              These open the printable sheet and trigger your browser print window. Use Sheet View if the print window
+              is blocked.
             </p>
           </section>
 
@@ -1205,10 +1216,16 @@ function App() {
             <div>
               <p className="eyebrow">{outputMode}</p>
               <h2>Prepared stencil sheet</h2>
+              <span>Click Print Now. If the print window is blocked, press Ctrl+P on this sheet.</span>
             </div>
-            <button type="button" onClick={() => setSheetView(false)}>
-              Back to Studio
-            </button>
+            <div className="sheet-toolbar-actions">
+              <button type="button" onClick={printPreparedSheet}>
+                Print Now
+              </button>
+              <button type="button" onClick={() => setSheetView(false)}>
+                Back to Studio
+              </button>
+            </div>
           </header>
           <div className="sheet-pages">
             {outputPages.map((page) => (
