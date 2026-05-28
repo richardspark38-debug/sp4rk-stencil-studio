@@ -111,6 +111,7 @@ function App() {
   const [outputPages, setOutputPages] = useState([]);
   const [outputMode, setOutputMode] = useState("");
   const [sheetView, setSheetView] = useState(false);
+  const [printScale, setPrintScale] = useState(75);
   const [orderPackage, setOrderPackage] = useState("digital");
   const [customerEmail, setCustomerEmail] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -1107,6 +1108,32 @@ function App() {
               <p className="eyebrow">Print / Save</p>
               <h3>Clean sheet output</h3>
             </div>
+            <label className="range-control print-size-control">
+              <span>Print Size</span>
+              <strong>{printScale}%</strong>
+              <input
+                type="range"
+                min="25"
+                max="125"
+                step="5"
+                value={printScale}
+                onChange={(event) => setPrintScale(Number(event.target.value))}
+              />
+            </label>
+            <div className="button-row">
+              <button type="button" onClick={() => setPrintScale(50)}>
+                Small
+              </button>
+              <button type="button" onClick={() => setPrintScale(75)}>
+                Medium
+              </button>
+              <button type="button" onClick={() => setPrintScale(100)}>
+                Full Page
+              </button>
+              <button type="button" onClick={() => setPrintScale(125)}>
+                Larger
+              </button>
+            </div>
             <div className="print-save-grid">
               <button type="button" onClick={printTiledPages} disabled={!imageReady}>
                 Print Tiled Sheet
@@ -1116,8 +1143,8 @@ function App() {
               </button>
             </div>
             <p className="micro-copy">
-              These open the printable sheet and trigger your browser print window. Use Sheet View if the print window
-              is blocked.
+              Lower Print Size if it comes out too big. These open the printable sheet and trigger your browser print
+              window.
             </p>
           </section>
 
@@ -1211,12 +1238,18 @@ function App() {
       </main>
 
       {sheetView && (
-        <section className="sheet-stage" aria-label="Printable stencil sheet">
+        <section
+          className="sheet-stage"
+          aria-label="Printable stencil sheet"
+          style={{ "--print-scale": `${printScale}%` }}
+        >
           <header className="sheet-toolbar">
             <div>
               <p className="eyebrow">{outputMode}</p>
               <h2>Prepared stencil sheet</h2>
-              <span>Click Print Now. If the print window is blocked, press Ctrl+P on this sheet.</span>
+              <span>
+                Print size: {printScale}%. Click Print Now. If the print window is blocked, press Ctrl+P on this sheet.
+              </span>
             </div>
             <div className="sheet-toolbar-actions">
               <button type="button" onClick={printPreparedSheet}>
