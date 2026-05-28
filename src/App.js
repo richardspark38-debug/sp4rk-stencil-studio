@@ -128,21 +128,6 @@ function App() {
   const enabledLayerCount = layers.filter((layer) => layer.enabled).length;
   const selectedPackage = ORDER_PACKAGES.find((item) => item.id === orderPackage) || ORDER_PACKAGES[0];
 
-  const islandWarnings = useMemo(() => {
-    const image = imageRef.current;
-
-    if (!imageReady || !image || imageBounds.width <= 0 || imageBounds.height <= 0) {
-      return [];
-    }
-
-    return detectStencilIslands(image, imageBounds, {
-      brightness,
-      contrast,
-      invert,
-      threshold,
-    });
-  }, [brightness, contrast, imageBounds, imageReady, invert, threshold]);
-
   const baseImageBounds = useMemo(() => {
     const image = imageRef.current;
 
@@ -180,6 +165,21 @@ function App() {
       height,
     };
   }, [baseImageBounds, imageTransform.offsetX, imageTransform.offsetY, imageTransform.zoom]);
+
+  const islandWarnings = useMemo(() => {
+    const image = imageRef.current;
+
+    if (!imageReady || !image || imageBounds.width <= 0 || imageBounds.height <= 0) {
+      return [];
+    }
+
+    return detectStencilIslands(image, imageBounds, {
+      brightness,
+      contrast,
+      invert,
+      threshold,
+    });
+  }, [brightness, contrast, imageBounds, imageReady, invert, threshold]);
 
   const renderStencil = useCallback(
     (ctx, options = {}) => {
