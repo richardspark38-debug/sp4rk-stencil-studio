@@ -71,6 +71,8 @@ const DEFAULT_BRIDGE = {
   rotation: 0,
 };
 
+const MAX_ISLAND_WARNINGS = 24;
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
@@ -97,6 +99,7 @@ function App() {
   const [brightness, setBrightness] = useState(0);
   const [invert, setInvert] = useState(false);
   const [bridgeMode, setBridgeMode] = useState(false);
+  const [showIslandWarnings, setShowIslandWarnings] = useState(true);
   const [moveMode, setMoveMode] = useState(false);
   const [bridges, setBridges] = useState([]);
   const [selectedBridgeId, setSelectedBridgeId] = useState(null);
@@ -124,6 +127,21 @@ function App() {
   const activeLayer = layers.find((layer) => layer.id === activeLayerId);
   const enabledLayerCount = layers.filter((layer) => layer.enabled).length;
   const selectedPackage = ORDER_PACKAGES.find((item) => item.id === orderPackage) || ORDER_PACKAGES[0];
+
+  const islandWarnings = useMemo(() => {
+    const image = imageRef.current;
+
+    if (!imageReady || !image || imageBounds.width <= 0 || imageBounds.height <= 0) {
+      return [];
+    }
+
+    return detectStencilIslands(image, imageBounds, {
+      brightness,
+      contrast,
+      invert,
+      threshold,
+    });
+  }, [brightness, contrast, imageBounds, imageReady, invert, threshold]);
 
   const baseImageBounds = useMemo(() => {
     const image = imageRef.current;
@@ -170,6 +188,7 @@ function App() {
         drawGrid = true,
         drawBridgeTabs = true,
         drawFrame = true,
+        drawIslandWarnings = true,
         bridgeSelectionId = selectedBridgeId,
         bounds = imageBounds,
       } = options;
@@ -236,6 +255,10 @@ function App() {
         drawPageGrid(ctx, bounds, pageLayout, PAGE_SIZES[pageSize]);
       }
 
+      if (drawIslandWarnings && showIslandWarnings) {
+        drawIslandWarningsOverlay(ctx, islandWarnings);
+      }
+
       if (drawBridgeTabs) {
         drawBridges(ctx, bridges, bridgeSelectionId);
       }
@@ -254,10 +277,12 @@ function App() {
       contrast,
       imageBounds,
       imageReady,
+      islandWarnings,
       invert,
       pageLayout,
       pageSize,
       selectedBridgeId,
+      showIslandWarnings,
       threshold,
     ]
   );
@@ -542,6 +567,31 @@ function App() {
     setSelectedBridgeId(null);
   };
 
+  const addBridgeTabsForIslands = () => {
+    if (!islandWarnings.length) {
+      return;
+    }
+
+    const newBridges = islandWarnings.slice(0, 12).map((island) => {
+      const bridgeToLeft = island.center.x > imageBounds.x + imageBounds.width / 2;
+      const width = clamp(Math.max(70, island.bounds.width * 0.9), 58, 150);
+
+      return {
+        id: createId(),
+        x: bridgeToLeft ? island.bounds.x + island.bounds.width * 0.12 : island.bounds.x + island.bounds.width * 0.88,
+        y: island.center.y,
+        width,
+        height: clamp(Math.max(14, island.bounds.height * 0.16), 12, 26),
+        rotation: 0,
+      };
+    });
+
+    setBridges((current) => [...current, ...newBridges]);
+    setSelectedBridgeId(newBridges[0]?.id || null);
+    setBridgeMode(true);
+    setShowIslandWarnings(true);
+  };
+
   const toggleLayer = (layerId) => {
     setLayers((current) =>
       current.map((layer) => (layer.id === layerId ? { ...layer, enabled: !layer.enabled } : layer))
@@ -589,6 +639,7 @@ function App() {
       drawGrid: false,
       drawBridgeTabs: true,
       drawFrame: true,
+      drawIslandWarnings: false,
       bridgeSelectionId: null,
     });
 
@@ -928,6 +979,27 @@ function App() {
             />
             <span>Click canvas to add tabs</span>
           </label>
+          <label className="toggle-row">
+            <input
+              type="checkbox"
+              checked={showIslandWarnings}
+              onChange={(event) => setShowIslandWarnings(event.target.checked)}
+            />
+            <span>Show island warnings</span>
+          </label>
+
+          <div className="island-warning-panel">
+            <strong>{islandWarnings.length}</strong>
+            <span>possible white island{islandWarnings.length === 1 ? "" : "s"} found</span>
+          </div>
+          <button
+            className="wide-action"
+            type="button"
+            onClick={addBridgeTabsForIslands}
+            disabled={!islandWarnings.length}
+          >
+            Auto Add Bridge Tabs
+          </button>
 
           <label className="range-control">
             <span>Tab Width</span>
@@ -1731,6 +1803,137 @@ function drawBridges(ctx, bridges, selectedBridgeId) {
     ctx.fillText("BRIDGE", 0, 0);
     ctx.restore();
   });
+}
+
+function detectStencilIslands(image, displayBounds, settings) {
+  const scanWidth = Math.min(320, Math.max(24, Math.round(displayBounds.width)));
+  const scanHeight = Math.max(24, Math.round((displayBounds.height / displayBounds.width) * scanWidth));
+  const scanCanvas = document.createElement("canvas");
+  const scanCtx = scanCanvas.getContext("2d", { willReadFrequently: true });
+  scanCanvas.width = scanWidth;
+  scanCanvas.height = scanHeight;
+  scanCtx.drawImage(image, 0, 0, scanWidth, scanHeight);
+
+  const imageData = scanCtx.getImageData(0, 0, scanWidth, scanHeight);
+  const data = imageData.data;
+  const visited = new Uint8Array(scanWidth * scanHeight);
+  const whiteMask = new Uint8Array(scanWidth * scanHeight);
+  const contrastFactor = (259 * (settings.contrast + 255)) / (255 * (259 - settings.contrast));
+
+  for (let index = 0; index < scanWidth * scanHeight; index += 1) {
+    const dataIndex = index * 4;
+    const gray = 0.299 * data[dataIndex] + 0.587 * data[dataIndex + 1] + 0.114 * data[dataIndex + 2];
+    const adjusted = clamp(contrastFactor * (gray - 128) + 128 + settings.brightness, 0, 255);
+    const cut = settings.invert ? adjusted > settings.threshold : adjusted < settings.threshold;
+    whiteMask[index] = cut ? 0 : 1;
+  }
+
+  const islands = [];
+  const stack = [];
+  const minimumArea = Math.max(24, Math.round((scanWidth * scanHeight) * 0.0012));
+
+  for (let start = 0; start < whiteMask.length; start += 1) {
+    if (!whiteMask[start] || visited[start]) {
+      continue;
+    }
+
+    let minX = scanWidth;
+    let minY = scanHeight;
+    let maxX = 0;
+    let maxY = 0;
+    let area = 0;
+    let touchesEdge = false;
+    stack.push(start);
+    visited[start] = 1;
+
+    while (stack.length) {
+      const current = stack.pop();
+      const x = current % scanWidth;
+      const y = Math.floor(current / scanWidth);
+      area += 1;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+
+      if (x === 0 || y === 0 || x === scanWidth - 1 || y === scanHeight - 1) {
+        touchesEdge = true;
+      }
+
+      const neighbors = [current - 1, current + 1, current - scanWidth, current + scanWidth];
+      for (const neighbor of neighbors) {
+        if (
+          neighbor < 0 ||
+          neighbor >= whiteMask.length ||
+          visited[neighbor] ||
+          !whiteMask[neighbor]
+        ) {
+          continue;
+        }
+
+        const nx = neighbor % scanWidth;
+        const ny = Math.floor(neighbor / scanWidth);
+        if (Math.abs(nx - x) + Math.abs(ny - y) !== 1) {
+          continue;
+        }
+
+        visited[neighbor] = 1;
+        stack.push(neighbor);
+      }
+    }
+
+    if (!touchesEdge && area >= minimumArea) {
+      const scaleX = displayBounds.width / scanWidth;
+      const scaleY = displayBounds.height / scanHeight;
+      islands.push({
+        area,
+        bounds: {
+          x: displayBounds.x + minX * scaleX,
+          y: displayBounds.y + minY * scaleY,
+          width: Math.max(10, (maxX - minX + 1) * scaleX),
+          height: Math.max(10, (maxY - minY + 1) * scaleY),
+        },
+        center: {
+          x: displayBounds.x + ((minX + maxX + 1) / 2) * scaleX,
+          y: displayBounds.y + ((minY + maxY + 1) / 2) * scaleY,
+        },
+      });
+    }
+  }
+
+  return islands.sort((a, b) => b.area - a.area).slice(0, MAX_ISLAND_WARNINGS);
+}
+
+function drawIslandWarningsOverlay(ctx, islands) {
+  if (!islands.length) {
+    return;
+  }
+
+  ctx.save();
+  ctx.lineWidth = 2;
+  ctx.font = "800 10px Inter, Arial, sans-serif";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+
+  islands.forEach((island, index) => {
+    const pad = 6;
+    const x = island.bounds.x - pad;
+    const y = island.bounds.y - pad;
+    const width = island.bounds.width + pad * 2;
+    const height = island.bounds.height + pad * 2;
+    ctx.strokeStyle = "rgba(255, 64, 38, 0.9)";
+    ctx.fillStyle = "rgba(255, 64, 38, 0.14)";
+    ctx.setLineDash([7, 5]);
+    ctx.strokeRect(x, y, width, height);
+    ctx.setLineDash([]);
+    ctx.fillRect(x, y, width, height);
+    ctx.fillStyle = "rgba(17, 17, 17, 0.86)";
+    ctx.fillRect(x, y - 17, 92, 17);
+    ctx.fillStyle = "#ff6d2a";
+    ctx.fillText(`ISLAND ${index + 1}`, x + 5, y - 15);
+  });
+
+  ctx.restore();
 }
 
 export default App;

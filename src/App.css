@@ -222,6 +222,26 @@ button:disabled {
   padding: 12px;
 }
 
+.island-warning-panel {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(255, 109, 42, 0.42);
+  border-radius: 8px;
+  background: rgba(255, 109, 42, 0.1);
+  padding: 10px 12px;
+  color: #d4cec8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.island-warning-panel strong {
+  color: var(--accent);
+  font-size: 24px;
+  line-height: 1;
+}
+
 .button-row,
 .export-actions,
 .output-actions,
