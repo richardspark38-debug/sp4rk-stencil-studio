@@ -29,6 +29,9 @@ const ORDER_PACKAGES = [
     name: "Digital Stencil File",
     price: 12,
     detail: "Clean PNG stencil preview for cutting or printing",
+    bestFor: "Small stencils, quick previews, hand cutting, and simple black-and-white designs.",
+    delivery: "1 cleaned digital stencil image sent by email after review.",
+    notIncluded: "No multi-page tiling, SVG tracing, or heavy manual redraw.",
     bullets: ["Black and white cutout file", "Bridge tab notes", "Email delivery after review"],
   },
   {
@@ -36,6 +39,9 @@ const ORDER_PACKAGES = [
     name: "Tiled Print Pack",
     price: 24,
     detail: "Large stencil split across printable pages",
+    bestFor: "Large wall, shop, garage, panel, and oversized stencil jobs.",
+    delivery: "Printable page set with page labels and assembly direction.",
+    notIncluded: "No machine-ready SVG unless upgraded to custom cleanup.",
     bullets: ["4, 6, or 9 page layouts", "Page labels for assembly", "Good for oversized wall or garage work"],
   },
   {
@@ -43,6 +49,9 @@ const ORDER_PACKAGES = [
     name: "Custom Cut-Ready Job",
     price: 45,
     detail: "Manual cleanup for vinyl, Cricut, or wrap work",
+    bestFor: "Customer work, vinyl cutting, Cricut prep, stickers, wraps, and detailed images.",
+    delivery: "Cleaned stencil art prepared around your cutting or paint method.",
+    notIncluded: "Rush work, extra color layers, and complex redraws may need a custom quote.",
     bullets: ["Cleaner edges and simplified detail", "Cut method notes", "Best for customer jobs and machines"],
   },
 ];
@@ -1423,6 +1432,20 @@ function LandingPage({ onOpenStudio }) {
               <span>{item.name}</span>
               <strong>${item.price}</strong>
               <p>{item.detail}</p>
+              <dl className="package-details">
+                <div>
+                  <dt>Best For</dt>
+                  <dd>{item.bestFor}</dd>
+                </div>
+                <div>
+                  <dt>Delivery</dt>
+                  <dd>{item.delivery}</dd>
+                </div>
+                <div>
+                  <dt>Not Included</dt>
+                  <dd>{item.notIncluded}</dd>
+                </div>
+              </dl>
               <ul>
                 {item.bullets.map((bullet) => (
                   <li key={bullet}>{bullet}</li>
@@ -1437,6 +1460,27 @@ function LandingPage({ onOpenStudio }) {
               )}
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="site-section package-guide-section">
+        <div className="section-title">
+          <p className="eyebrow">Package Guide</p>
+          <h2>Pick the package that matches the job.</h2>
+        </div>
+        <div className="package-guide">
+          <article>
+            <strong>Choose $12</strong>
+            <p>When you need a simple stencil image and can print or cut it yourself.</p>
+          </article>
+          <article>
+            <strong>Choose $24</strong>
+            <p>When the stencil needs to be printed bigger than one sheet of paper.</p>
+          </article>
+          <article>
+            <strong>Choose $45</strong>
+            <p>When the file needs manual cleanup for cutting machines, wraps, decals, or customer work.</p>
+          </article>
         </div>
       </section>
 

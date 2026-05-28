@@ -919,7 +919,8 @@ canvas {
 .customer-grid,
 .deliverables-grid,
 .instruction-grid,
-.sample-grid {
+.sample-grid,
+.package-guide {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
@@ -972,7 +973,8 @@ canvas {
 .deliverables-grid div,
 .instruction-grid article,
 .sample-card,
-.contact-card {
+.contact-card,
+.package-guide article {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(21, 21, 21, 0.86);
@@ -1023,15 +1025,41 @@ canvas {
 .deliverables-grid p,
 .sample-card p,
 .contact-card p,
+.package-guide p,
 .order-band p {
   color: #d4cec8;
   line-height: 1.55;
 }
 
+.package-details {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.package-details div {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.package-details dt,
+.package-guide strong {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.package-details dd {
+  margin: 5px 0 0;
+  color: #d4cec8;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .price-card ul {
   display: grid;
   gap: 8px;
-  min-height: 98px;
   margin: 16px 0 0;
   padding: 0;
   color: #d4cec8;
@@ -1362,6 +1390,7 @@ canvas {
   .deliverables-grid,
   .instruction-grid,
   .sample-grid,
+  .package-guide,
   .policy-section {
     grid-template-columns: 1fr;
   }
