@@ -605,7 +605,8 @@ function App() {
   };
 
   const createOutputPage = (canvas, label, fileName) => {
-    const dataUrl = canvas.toDataURL("image/png");
+    const printCanvas = createPrintMarkedCanvas(canvas, label);
+    const dataUrl = printCanvas.toDataURL("image/png");
     const blob = dataUrlToBlob(dataUrl);
     const objectUrl = URL.createObjectURL(blob);
     outputUrlsRef.current.push(objectUrl);
@@ -1739,6 +1740,67 @@ function dataUrlToBlob(dataUrl) {
   }
 
   return new Blob([bytes], { type: mime });
+}
+
+function createPrintMarkedCanvas(sourceCanvas, label) {
+  const legendHeight = 94;
+  const pad = 22;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = sourceCanvas.width;
+  canvas.height = sourceCanvas.height + legendHeight;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(sourceCanvas, 0, 0);
+
+  const y = sourceCanvas.height;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, y, canvas.width, legendHeight);
+  ctx.strokeStyle = "#111111";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(0, 0, canvas.width, canvas.height);
+  ctx.beginPath();
+  ctx.moveTo(0, y);
+  ctx.lineTo(canvas.width, y);
+  ctx.stroke();
+
+  ctx.fillStyle = "#111111";
+  ctx.font = "900 16px Arial, sans-serif";
+  ctx.textBaseline = "top";
+  ctx.fillText(label, pad, y + 14);
+
+  const note = "CUT GUIDE: BLACK = CUT OUT  |  WHITE = KEEP  |  RED / GRAY TABS = DO NOT CUT";
+  ctx.font = "900 14px Arial, sans-serif";
+  ctx.fillText(note, pad, y + 42);
+
+  drawPrintLegendSwatch(ctx, pad, y + 68, "#000000", "CUT OUT");
+  drawPrintLegendSwatch(ctx, pad + 142, y + 68, "#ffffff", "KEEP", true);
+  drawPrintLegendSwatch(ctx, pad + 270, y + 68, "#e63223", "DO NOT CUT TAB");
+
+  return canvas;
+}
+
+function drawPrintLegendSwatch(ctx, x, y, color, label, outlined = false) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.strokeStyle = "#111111";
+  ctx.lineWidth = 2;
+  ctx.fillRect(x, y, 18, 14);
+  ctx.strokeRect(x, y, 18, 14);
+
+  if (outlined) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 18, y + 14);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "#111111";
+  ctx.font = "900 11px Arial, sans-serif";
+  ctx.textBaseline = "top";
+  ctx.fillText(label, x + 26, y + 1);
+  ctx.restore();
 }
 
 function drawPageGrid(ctx, bounds, layout, size) {
