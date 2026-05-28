@@ -351,6 +351,7 @@ canvas {
 .page-panel,
 .layer-panel,
 .print-save-panel,
+.owner-tools-panel,
 .checkout-panel,
 .output-panel {
   border: 1px solid var(--line);
@@ -405,6 +406,7 @@ canvas {
 .page-panel,
 .layer-panel,
 .print-save-panel,
+.owner-tools-panel,
 .checkout-panel,
 .output-panel {
   display: grid;
@@ -1400,6 +1402,7 @@ canvas {
   }
 
   .print-save-panel,
+  .owner-tools-panel,
   .checkout-panel {
     grid-column: 1 / -1;
   }

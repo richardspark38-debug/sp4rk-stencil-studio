@@ -121,6 +121,11 @@ function App() {
   const [orderMessage, setOrderMessage] = useState("");
   const [paymentLinks, setPaymentLinks] = useState(DEFAULT_PAYMENT_LINKS);
   const [view, setView] = useState("landing");
+  const [svgMessage, setSvgMessage] = useState("");
+
+  const ownerToolsEnabled =
+    new URLSearchParams(window.location.search).get("owner") === "1" ||
+    window.localStorage.getItem("sp4rk-owner-tools") === "on";
 
   const pageLayout = PAGE_LAYOUTS[pageCount];
   const selectedBridge = bridges.find((bridge) => bridge.id === selectedBridgeId);
@@ -745,6 +750,32 @@ function App() {
     }, 450);
   };
 
+  const exportCricutSvg = () => {
+    if (!imageReady || !imageRef.current) {
+      setSvgMessage("Upload an image first, then export SVG.");
+      return;
+    }
+
+    const svg = createStencilSvg(imageRef.current, imageBounds, {
+      brightness,
+      bridges,
+      contrast,
+      imageName,
+      invert,
+      threshold,
+    });
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${baseNameForFile(imageName)}-cricut-stencil.svg`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+    setSvgMessage("SVG exported. Upload that file into Cricut Design Space.");
+  };
+
   const preparePrint = (pages, mode, shouldPrint = false) => {
     if (!pages.length) {
       return;
@@ -1220,6 +1251,22 @@ function App() {
               window.
             </p>
           </section>
+
+          {ownerToolsEnabled && (
+            <section className="owner-tools-panel" aria-label="Owner SVG and Cricut tools">
+              <div>
+                <p className="eyebrow">Owner Tools</p>
+                <h3>SVG / Cricut prep</h3>
+              </div>
+              <button className="wide-action" type="button" onClick={exportCricutSvg} disabled={!imageReady}>
+                Export Cricut SVG
+              </button>
+              {svgMessage && <p className="micro-copy">{svgMessage}</p>}
+              <p className="micro-copy">
+                Cricut connection is file-based: export SVG here, then upload it in Cricut Design Space.
+              </p>
+            </section>
+          )}
 
           <section className="checkout-panel" aria-label="Customer checkout">
             <div>
@@ -1801,6 +1848,86 @@ function drawPrintLegendSwatch(ctx, x, y, color, label, outlined = false) {
   ctx.textBaseline = "top";
   ctx.fillText(label, x + 26, y + 1);
   ctx.restore();
+}
+
+function createStencilSvg(image, displayBounds, settings) {
+  const svgWidth = Math.min(900, Math.max(120, Math.round(displayBounds.width)));
+  const svgHeight = Math.max(120, Math.round((displayBounds.height / displayBounds.width) * svgWidth));
+  const scanCanvas = document.createElement("canvas");
+  const scanCtx = scanCanvas.getContext("2d", { willReadFrequently: true });
+  scanCanvas.width = svgWidth;
+  scanCanvas.height = svgHeight;
+  scanCtx.drawImage(image, 0, 0, svgWidth, svgHeight);
+
+  const imageData = scanCtx.getImageData(0, 0, svgWidth, svgHeight);
+  const data = imageData.data;
+  const contrastFactor = (259 * (settings.contrast + 255)) / (255 * (259 - settings.contrast));
+  const scaleX = svgWidth / displayBounds.width;
+  const scaleY = svgHeight / displayBounds.height;
+  const pathParts = [];
+
+  for (let y = 0; y < svgHeight; y += 1) {
+    let runStart = -1;
+
+    for (let x = 0; x <= svgWidth; x += 1) {
+      let isCut = false;
+
+      if (x < svgWidth) {
+        const index = (y * svgWidth + x) * 4;
+        const gray = 0.299 * data[index] + 0.587 * data[index + 1] + 0.114 * data[index + 2];
+        const adjusted = clamp(contrastFactor * (gray - 128) + 128 + settings.brightness, 0, 255);
+        isCut = settings.invert ? adjusted > settings.threshold : adjusted < settings.threshold;
+
+        if (isCut && pointIsInsideAnyBridge(x, y, settings.bridges, displayBounds, scaleX, scaleY)) {
+          isCut = false;
+        }
+      }
+
+      if (isCut && runStart === -1) {
+        runStart = x;
+      }
+
+      if ((!isCut || x === svgWidth) && runStart !== -1) {
+        const width = x - runStart;
+        pathParts.push(`M${runStart} ${y}h${width}v1h-${width}z`);
+        runStart = -1;
+      }
+    }
+  }
+
+  const title = escapeSvgText(baseNameForFile(settings.imageName));
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">`,
+    `<title>${title} SP4RK stencil cut file</title>`,
+    `<desc>Black path is the cut area. Bridge tabs are removed from the cut path so they stay connected.</desc>`,
+    `<rect width="100%" height="100%" fill="white"/>`,
+    `<path d="${pathParts.join("")}" fill="black"/>`,
+    `</svg>`,
+  ].join("");
+}
+
+function pointIsInsideAnyBridge(x, y, bridges, displayBounds, scaleX, scaleY) {
+  return bridges.some((bridge) => {
+    const bridgeX = (bridge.x - displayBounds.x) * scaleX;
+    const bridgeY = (bridge.y - displayBounds.y) * scaleY;
+    const bridgeWidth = bridge.width * scaleX;
+    const bridgeHeight = bridge.height * scaleY;
+    const dx = x - bridgeX;
+    const dy = y - bridgeY;
+    const radians = (-bridge.rotation * Math.PI) / 180;
+    const localX = dx * Math.cos(radians) - dy * Math.sin(radians);
+    const localY = dx * Math.sin(radians) + dy * Math.cos(radians);
+
+    return Math.abs(localX) <= bridgeWidth / 2 && Math.abs(localY) <= bridgeHeight / 2;
+  });
+}
+
+function escapeSvgText(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function drawPageGrid(ctx, bounds, layout, size) {
