@@ -127,6 +127,12 @@ function App() {
     new URLSearchParams(window.location.search).get("owner") === "1" ||
     window.localStorage.getItem("sp4rk-owner-tools") === "on";
 
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("owner") === "1") {
+      window.localStorage.setItem("sp4rk-owner-tools", "on");
+    }
+  }, []);
+
   const pageLayout = PAGE_LAYOUTS[pageCount];
   const selectedBridge = bridges.find((bridge) => bridge.id === selectedBridgeId);
   const activeLayer = layers.find((layer) => layer.id === activeLayerId);
@@ -1258,6 +1264,10 @@ function App() {
                 <p className="eyebrow">Owner Tools</p>
                 <h3>SVG / Cricut prep</h3>
               </div>
+              <div className="owner-mode-note">
+                This panel only shows on your owner page. Customer visitors do not see SVG/Cricut tools or payment link
+                setup fields.
+              </div>
               <button className="wide-action" type="button" onClick={exportCricutSvg} disabled={!imageReady}>
                 Export Cricut SVG
               </button>
@@ -1287,15 +1297,17 @@ function App() {
                 </button>
               ))}
             </div>
-            <label className="text-control">
-              <span>{selectedPackage.name} Payment Link</span>
-              <input
-                type="url"
-                value={paymentLinks[orderPackage] || ""}
-                placeholder="https://buy.stripe.com/... or PayPal payment link"
-                onChange={(event) => savePaymentLink(orderPackage, event.target.value)}
-              />
-            </label>
+            {ownerToolsEnabled && (
+              <label className="text-control">
+                <span>{selectedPackage.name} Payment Link</span>
+                <input
+                  type="url"
+                  value={paymentLinks[orderPackage] || ""}
+                  placeholder="https://buy.stripe.com/... or PayPal payment link"
+                  onChange={(event) => savePaymentLink(orderPackage, event.target.value)}
+                />
+              </label>
+            )}
             <label className="text-control">
               <span>Customer Email</span>
               <input
@@ -1317,9 +1329,15 @@ function App() {
               Start Payment
             </button>
             {orderMessage && <pre className="order-summary">{orderMessage}</pre>}
-            <p className="micro-copy">
-              Create Stripe Payment Links for each package, paste them here once, then this button sends customers to pay.
-            </p>
+            {ownerToolsEnabled ? (
+              <p className="micro-copy">
+                Owner mode: create Stripe Payment Links for each package and paste them here once.
+              </p>
+            ) : (
+              <p className="micro-copy">
+                Customer mode: choose a package, add notes, then continue to the secure payment page.
+              </p>
+            )}
           </section>
 
           {outputPages.length > 0 && (

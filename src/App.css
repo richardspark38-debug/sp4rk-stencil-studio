@@ -242,6 +242,17 @@ button:disabled {
   line-height: 1;
 }
 
+.owner-mode-note {
+  border: 1px solid rgba(255, 109, 42, 0.42);
+  border-radius: 8px;
+  background: rgba(255, 109, 42, 0.1);
+  padding: 10px 12px;
+  color: #f4f1ed;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .button-row,
 .export-actions,
 .output-actions,
