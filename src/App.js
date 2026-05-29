@@ -861,6 +861,50 @@ function App() {
     window.location.href = activePaymentLink;
   };
 
+  const createOrderSummary = () => {
+    return [
+      `SP4RK STENCIL ORDER`,
+      ``,
+      `Package: ${selectedPackage.name}`,
+      `Price: $${selectedPackage.price}`,
+      `Customer email: ${customerEmail || "not provided"}`,
+      `Uploaded image: ${imageName || "not uploaded yet"}`,
+      `Page setup: ${pageCount} page layout, ${PAGE_SIZES[pageSize].label}`,
+      `Threshold: ${threshold}`,
+      `Brightness: ${brightness}`,
+      `Contrast: ${contrast}`,
+      `Invert: ${invert ? "yes" : "no"}`,
+      `Bridge tabs: ${bridges.length}`,
+      `Possible islands: ${islandWarnings.length}`,
+      `Layers selected: ${enabledLayerCount}`,
+      ``,
+      `Customer notes:`,
+      orderNotes || "none",
+      ``,
+      `Customer should attach the original image to this email if it is not already included.`,
+    ].join("\n");
+  };
+
+  const emailOrderDetails = () => {
+    const summary = createOrderSummary();
+    setOrderMessage(`${summary}\n\nEmail window opened. Attach the original image if needed, then send.`);
+    const subject = encodeURIComponent(`SP4RK Stencil Order - ${selectedPackage.name}`);
+    const body = encodeURIComponent(summary);
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+  };
+
+  const copyOrderDetails = async () => {
+    const summary = createOrderSummary();
+    setOrderMessage(summary);
+
+    try {
+      await navigator.clipboard.writeText(summary);
+      setOrderMessage(`${summary}\n\nCopied. Paste this into an email or message to SP4RK.`);
+    } catch {
+      setOrderMessage(`${summary}\n\nCopy failed. Select this text and copy it manually.`);
+    }
+  };
+
   const savePaymentLink = (packageId, value) => {
     const nextLinks = { ...paymentLinks, [packageId]: value };
     setPaymentLinks(nextLinks);
@@ -1325,6 +1369,14 @@ function App() {
                 onChange={(event) => setOrderNotes(event.target.value)}
               />
             </label>
+            <div className="order-action-grid">
+              <button type="button" onClick={emailOrderDetails}>
+                Email Order Details
+              </button>
+              <button type="button" onClick={copyOrderDetails}>
+                Copy Order Details
+              </button>
+            </div>
             <button className="pay-action" type="button" onClick={prepareOrder}>
               Start Payment
             </button>
@@ -1335,7 +1387,8 @@ function App() {
               </p>
             ) : (
               <p className="micro-copy">
-                Customer mode: choose a package, add notes, then continue to the secure payment page.
+                Customer mode: email the order details first, attach the original image if needed, then continue to
+                secure payment.
               </p>
             )}
           </section>

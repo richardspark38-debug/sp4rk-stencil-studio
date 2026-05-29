@@ -594,6 +594,22 @@ canvas {
   text-transform: uppercase;
 }
 
+.order-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.order-action-grid button {
+  min-height: 42px;
+  border-color: rgba(255, 109, 42, 0.42);
+  background: rgba(255, 109, 42, 0.1);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .order-summary {
   margin: 0;
   overflow: auto;
@@ -1524,6 +1540,7 @@ canvas {
   .size-options,
   .layer-list,
   .package-grid,
+  .order-action-grid,
   .print-save-grid {
     grid-template-columns: 1fr;
   }
