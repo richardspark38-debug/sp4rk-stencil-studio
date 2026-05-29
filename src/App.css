@@ -363,6 +363,7 @@ canvas {
 .layer-panel,
 .print-save-panel,
 .owner-tools-panel,
+.admin-panel,
 .checkout-panel,
 .output-panel {
   border: 1px solid var(--line);
@@ -418,6 +419,7 @@ canvas {
 .layer-panel,
 .print-save-panel,
 .owner-tools-panel,
+.admin-panel,
 .checkout-panel,
 .output-panel {
   display: grid;
@@ -596,7 +598,7 @@ canvas {
 
 .order-action-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
@@ -608,6 +610,18 @@ canvas {
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.backend-status {
+  margin: 0;
+  border: 1px solid rgba(255, 109, 42, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 109, 42, 0.1);
+  color: var(--accent);
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
 }
 
 .order-summary {
@@ -1430,6 +1444,7 @@ canvas {
 
   .print-save-panel,
   .owner-tools-panel,
+  .admin-panel,
   .checkout-panel {
     grid-column: 1 / -1;
   }
@@ -1636,4 +1651,40 @@ canvas {
     letter-spacing: 0;
     text-transform: uppercase;
   }
+}
+.admin-order-list {
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.admin-order-card {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.32);
+  padding: 10px;
+}
+
+.admin-order-card strong {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.admin-order-card span,
+.admin-order-card small {
+  color: #d4cec8;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.admin-order-card p {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
 }

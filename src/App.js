@@ -93,6 +93,7 @@ function App() {
   const outputUrlsRef = useRef([]);
 
   const [imageName, setImageName] = useState("");
+  const [imageDataUrl, setImageDataUrl] = useState("");
   const [imageReady, setImageReady] = useState(false);
   const [threshold, setThreshold] = useState(128);
   const [contrast, setContrast] = useState(18);
@@ -119,9 +120,15 @@ function App() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [orderMessage, setOrderMessage] = useState("");
+  const [orderSaved, setOrderSaved] = useState(null);
+  const [orderSaving, setOrderSaving] = useState(false);
   const [paymentLinks, setPaymentLinks] = useState(DEFAULT_PAYMENT_LINKS);
   const [view, setView] = useState("landing");
   const [svgMessage, setSvgMessage] = useState("");
+  const [adminSecret, setAdminSecret] = useState("");
+  const [adminOrders, setAdminOrders] = useState([]);
+  const [adminMessage, setAdminMessage] = useState("");
+  const [adminLoading, setAdminLoading] = useState(false);
 
   const ownerToolsEnabled =
     new URLSearchParams(window.location.search).get("owner") === "1" ||
@@ -400,6 +407,7 @@ function App() {
       image.onload = () => {
         imageRef.current = image;
         setImageName(file.name);
+        setImageDataUrl(reader.result);
         setImageReady(true);
         setImageTransform({ zoom: 1, offsetX: 0, offsetY: 0 });
         setBridges([]);
@@ -838,7 +846,58 @@ function App() {
     setSheetView(false);
   };
 
-  const prepareOrder = () => {
+  const createOrderPayload = () => ({
+    customerEmail,
+    imageDataUrl,
+    imageName,
+    notes: orderNotes,
+    packageId: selectedPackage.id,
+    packageName: selectedPackage.name,
+    price: selectedPackage.price,
+    settings: {
+      brightness,
+      bridgeCount: bridges.length,
+      contrast,
+      enabledLayerCount,
+      invert,
+      islandWarningCount: islandWarnings.length,
+      pageCount,
+      pageSize: PAGE_SIZES[pageSize].label,
+      threshold,
+    },
+  });
+
+  const submitOrderToBackend = async () => {
+    setOrderSaving(true);
+
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(createOrderPayload()),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Order save failed");
+      }
+
+      setOrderSaved(payload.order);
+      setOrderMessage(`Order saved to backend.\nOrder ID: ${payload.order.id}`);
+      return payload.order;
+    } catch (error) {
+      setOrderMessage(
+        `Backend order save did not finish: ${error.message}\n\nThe customer can still email/copy the order details and continue to payment.`
+      );
+      return null;
+    } finally {
+      setOrderSaving(false);
+    }
+  };
+
+  const prepareOrder = async () => {
     const activePaymentLink = paymentLinks[orderPackage]?.trim();
 
     if (!activePaymentLink) {
@@ -858,6 +917,7 @@ function App() {
     ].join("\n");
 
     setOrderMessage(summary);
+    await submitOrderToBackend();
     window.location.href = activePaymentLink;
   };
 
@@ -909,6 +969,32 @@ function App() {
     const nextLinks = { ...paymentLinks, [packageId]: value };
     setPaymentLinks(nextLinks);
     localStorage.setItem(PAYMENT_LINK_STORAGE_KEY, JSON.stringify(nextLinks));
+  };
+
+  const loadBackendOrders = async () => {
+    if (!adminSecret.trim()) {
+      setAdminMessage("Enter your admin secret first.");
+      return;
+    }
+
+    setAdminLoading(true);
+    setAdminMessage("Loading orders...");
+
+    try {
+      const response = await fetch(`/api/orders?secret=${encodeURIComponent(adminSecret.trim())}`);
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Could not load orders");
+      }
+
+      setAdminOrders(payload.orders || []);
+      setAdminMessage(`${payload.orders?.length || 0} order${payload.orders?.length === 1 ? "" : "s"} loaded.`);
+    } catch (error) {
+      setAdminMessage(error.message);
+    } finally {
+      setAdminLoading(false);
+    }
   };
 
   const activeBridgeSettings = selectedBridge || bridgeDefaults;
@@ -1322,6 +1408,40 @@ function App() {
             </section>
           )}
 
+          {ownerToolsEnabled && (
+            <section className="admin-panel" aria-label="Owner backend orders">
+              <div>
+                <p className="eyebrow">Backend Orders</p>
+                <h3>Owner order viewer</h3>
+              </div>
+              <label className="text-control">
+                <span>Admin Secret</span>
+                <input
+                  type="password"
+                  value={adminSecret}
+                  placeholder="Enter Vercel ADMIN_SECRET"
+                  onChange={(event) => setAdminSecret(event.target.value)}
+                />
+              </label>
+              <button className="wide-action" type="button" onClick={loadBackendOrders} disabled={adminLoading}>
+                {adminLoading ? "Loading..." : "Load Orders"}
+              </button>
+              {adminMessage && <p className="backend-status">{adminMessage}</p>}
+              <div className="admin-order-list">
+                {adminOrders.map((order) => (
+                  <article className="admin-order-card" key={order.id}>
+                    <strong>{order.package_name || "Stencil Order"}</strong>
+                    <span>{order.customer_email || "No email"}</span>
+                    <span>{order.created_at ? new Date(order.created_at).toLocaleString() : "No date"}</span>
+                    <span>Status: {order.status || "new"}</span>
+                    <p>{order.notes || "No notes"}</p>
+                    {order.image_path && <small>Image stored: {order.image_path}</small>}
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="checkout-panel" aria-label="Customer checkout">
             <div>
               <p className="eyebrow">Customer Checkout</p>
@@ -1370,6 +1490,9 @@ function App() {
               />
             </label>
             <div className="order-action-grid">
+              <button type="button" onClick={submitOrderToBackend} disabled={orderSaving}>
+                {orderSaving ? "Saving..." : "Save Order"}
+              </button>
               <button type="button" onClick={emailOrderDetails}>
                 Email Order Details
               </button>
@@ -1377,9 +1500,10 @@ function App() {
                 Copy Order Details
               </button>
             </div>
-            <button className="pay-action" type="button" onClick={prepareOrder}>
-              Start Payment
+            <button className="pay-action" type="button" onClick={prepareOrder} disabled={orderSaving}>
+              {orderSaving ? "Saving Order..." : "Start Payment"}
             </button>
+            {orderSaved && <p className="backend-status">Saved backend order: {orderSaved.id}</p>}
             {orderMessage && <pre className="order-summary">{orderMessage}</pre>}
             {ownerToolsEnabled ? (
               <p className="micro-copy">
